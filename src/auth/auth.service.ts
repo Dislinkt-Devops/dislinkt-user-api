@@ -3,8 +3,8 @@ import { v4 as uuid } from 'uuid';
 import { sign, verify } from 'jsonwebtoken'
 import { compare } from 'bcrypt'
 
-import { User } from 'src/users/entities/user.entity';
-import { UsersService } from 'src/users/users.service';
+import { User } from '../users/entities/user.entity';
+import { UsersService } from '../users/users.service';
 import { LoginResponseDto } from './dtos/login-response.dto';
 import { RefreshToken } from './entities/refresh-token.entity';
 import { InjectRepository } from '@nestjs/typeorm';

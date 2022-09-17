@@ -6,6 +6,10 @@ import { hash } from 'bcrypt'
 
 @Entity('users')
 export class User extends BaseEntity {
+    constructor(init?: Partial<User>) {
+        super();
+        Object.assign(this, init);
+    }
 
     @PrimaryGeneratedColumn('uuid')
     id: string;
