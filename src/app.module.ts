@@ -19,7 +19,6 @@ import { configuration } from './config';
       }),
       inject: [ConfigService],
     }),
-    UsersModule, 
     AuthModule
   ],
   providers: [],

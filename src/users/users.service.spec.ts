@@ -2,24 +2,24 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { User } from './entities/user.entity';
+import { UserEntity } from './entities/user.entity';
 import { UsersService } from './users.service';
 
 const usersArray = [
-  new User({ id: '1', username: 'peter', email: 'peter', 'password': 'peter', lastPasswordResetTime: null }),
-  new User({ id: '2', username: 'mark', email: 'mark', 'password': 'mark', lastPasswordResetTime: null }),
-];
+  { id: '1', username: 'peter', email: 'peter', 'password': 'peter', lastPasswordResetTime: null },
+  { id: '2', username: 'mark', email: 'mark', 'password': 'mark', lastPasswordResetTime: null },
+] as UserEntity[];
 
 describe('UsersService', () => {
   let service: UsersService;
-  let repo: Repository<User>;
+  let repo: Repository<UserEntity>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UsersService,
         {
-          provide: getRepositoryToken(User),
+          provide: getRepositoryToken(UserEntity),
           // this is temporary solution
           useValue: {
             find: jest.fn().mockResolvedValue(usersArray),
@@ -34,7 +34,7 @@ describe('UsersService', () => {
     }).compile();
 
     service = module.get<UsersService>(UsersService);
-    repo = module.get<Repository<User>>(getRepositoryToken(User));
+    repo = module.get<Repository<UserEntity>>(getRepositoryToken(UserEntity));
   });
 
   it('should be defined', () => {

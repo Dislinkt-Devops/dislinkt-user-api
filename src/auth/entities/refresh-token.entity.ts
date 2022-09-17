@@ -1,13 +1,8 @@
 import { sign } from 'jsonwebtoken'
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('refresh_tokens')
-export class RefreshToken extends BaseEntity {
-    constructor(init?: Partial<RefreshToken>) {
-        super();
-        Object.assign(this, init);
-    }
-    
+export class RefreshTokenEntity {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
@@ -15,12 +10,14 @@ export class RefreshToken extends BaseEntity {
     userId: string;
 
     @Column({ nullable: false })
+    username: string;
+
+    @Column({ nullable: false })
+    email: string;
+
+    @Column({ nullable: false })
     userAgent: string;
 
     @Column({ nullable: false })
     ipAddress: string;
-
-    sign(): string {
-        return sign({ ...this }, process.env.JWT_REFRESH_SECRET)
-    }
 }

@@ -2,27 +2,27 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { User } from '../users/entities/user.entity';
+import { UserEntity } from '../users/entities/user.entity';
 import { UsersService } from '../users/users.service';
 import { AuthService } from './auth.service';
-import { RefreshToken } from './entities/refresh-token.entity';
+import { RefreshTokenEntity } from './entities/refresh-token.entity';
 
 const usersArray = [
-  new User({ id: '1', username: 'peter', email: 'peter', 'password': 'peter', lastPasswordResetTime: null }),
-  new User({ id: '2', username: 'mark', email: 'mark', 'password': 'mark', lastPasswordResetTime: null }),
-];
+  { id: '1', username: 'peter', email: 'peter', 'password': 'peter', lastPasswordResetTime: null },
+  { id: '2', username: 'mark', email: 'mark', 'password': 'mark', lastPasswordResetTime: null },
+] as UserEntity[];
 
 describe('AuthService', () => {
   let service: AuthService;
-  let repo: Repository<RefreshToken>;
+  let repo: Repository<RefreshTokenEntity>;
   let userService: UsersService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        AuthService, 
+        AuthService,
         {
-          provide: getRepositoryToken(RefreshToken),
+          provide: getRepositoryToken(RefreshTokenEntity),
           // this is temporary solution
           useValue: {
             find: jest.fn().mockResolvedValue([]),
@@ -51,7 +51,7 @@ describe('AuthService', () => {
     }).compile();
 
     service = module.get<AuthService>(AuthService);
-    repo = module.get<Repository<RefreshToken>>(getRepositoryToken(RefreshToken));
+    repo = module.get<Repository<RefreshTokenEntity>>(getRepositoryToken(RefreshTokenEntity));
     userService = module.get<UsersService>(UsersService);
   });
 

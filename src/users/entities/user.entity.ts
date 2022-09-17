@@ -1,16 +1,11 @@
 import {
-    BaseEntity, Column, Entity, PrimaryGeneratedColumn,
+    Column, Entity, PrimaryGeneratedColumn,
     BeforeInsert
 } from "typeorm";
 import { hash } from 'bcrypt'
 
 @Entity('users')
-export class User extends BaseEntity {
-    constructor(init?: Partial<User>) {
-        super();
-        Object.assign(this, init);
-    }
-
+export class UserEntity {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 

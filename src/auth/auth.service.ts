@@ -1,25 +1,28 @@
 import { Injectable } from '@nestjs/common';
-import { v4 as uuid } from 'uuid';
 import { sign, verify } from 'jsonwebtoken'
 import { compare } from 'bcrypt'
 
-import { User } from '../users/entities/user.entity';
+import { UserEntity } from '../users/entities/user.entity';
 import { UsersService } from '../users/users.service';
 import { LoginResponseDto } from './dtos/login-response.dto';
-import { RefreshToken } from './entities/refresh-token.entity';
+import { RefreshTokenEntity } from './entities/refresh-token.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 @Injectable()
 export class AuthService {
+    constructor(
+        private readonly userService: UsersService, 
+        @InjectRepository(RefreshTokenEntity) private repository: Repository<RefreshTokenEntity>
+    ) {}
 
     private retrieveRefreshToken(
         refreshStr: string,
-    ): Promise<RefreshToken | undefined> {
+    ): Promise<RefreshTokenEntity> {
         try {
             const decoded = verify(refreshStr, process.env.JWT_REFRESH_SECRET);
             if (typeof decoded === 'string') {
-                return undefined;
+                return null;
             }
             return this.repository.findOne({
                 where: {
@@ -27,47 +30,49 @@ export class AuthService {
                 }
             });
         } catch (e) {
-            return undefined;
+            return null;
         }
     }
 
     private async newRefreshAndAccessToken(
-        user: User,
+        user: UserEntity,
         userAgent: string,
         ipAddress: string
     ): Promise<LoginResponseDto> {
-        const refreshToken = new RefreshToken({
+        const { id: userId, username, email } = user;
+        const refreshToken = {
             userAgent,
             ipAddress,
-            userId: user.id
-        });
+            userId,
+            username,
+            email
+        } as RefreshTokenEntity;
 
         this.repository.save(refreshToken);
 
+        const accessToken = { userId, username, email }; 
+
         return {
-            refreshToken: refreshToken.sign(),
-            accessToken: sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' })
+            refreshToken: sign(refreshToken, process.env.JWT_REFRESH_SECRET),
+            accessToken: sign(accessToken, process.env.JWT_SECRET, { expiresIn: '1h' })
         }
     }
 
-    constructor(
-        private readonly userService: UsersService, 
-        @InjectRepository(RefreshToken) private repository: Repository<RefreshToken>
-    ) { }
-
-    async refresh(refreshStr: string): Promise<LoginResponseDto | undefined> {
+    async refresh(refreshStr: string): Promise<LoginResponseDto> {
         const refreshToken = await this.retrieveRefreshToken(refreshStr);
         if (!refreshToken) {
-            return undefined;
+            return null;
         }
 
         const user = await this.userService.findOne(refreshToken.userId);
         if (!user) {
-            return undefined;
+            return null;
         }
 
         const accessToken = {
             userId: refreshToken.userId,
+            username: refreshToken.username,
+            email: refreshToken.email
         };
 
         return {
@@ -80,10 +85,10 @@ export class AuthService {
         password: string,
         userAgent: string,
         ipAddress: string
-    ): Promise<LoginResponseDto | undefined> {
+    ): Promise<LoginResponseDto> {
         const user = await this.userService.findByUsername(username);
         if (!user || !await compare(password, user.password)) {
-            return undefined;
+            return null;
         }
 
         return this.newRefreshAndAccessToken(user, userAgent, ipAddress)
