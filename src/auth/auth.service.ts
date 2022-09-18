@@ -8,6 +8,7 @@ import { LoginResponseDto } from './dtos/login-response.dto';
 import { RefreshTokenEntity } from './entities/refresh-token.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { Registration } from './dtos/registration.dto';
 
 @Injectable()
 export class AuthService {
@@ -94,7 +95,7 @@ export class AuthService {
         return this.newRefreshAndAccessToken(user, userAgent, ipAddress)
     }
 
-    async logout(refreshStr): Promise<void> {
+    async logout(refreshStr: string): Promise<void> {
         const refreshToken = await this.retrieveRefreshToken(refreshStr);
 
         if (!refreshToken) {
@@ -102,5 +103,15 @@ export class AuthService {
         }
         // delete refreshtoken from db
         this.repository.delete(refreshToken.id);
+    }
+
+    async register(registrationForm: Registration): Promise<void> {
+        const user = {
+            username: registrationForm.username,
+            email: registrationForm.email,
+            password: registrationForm.password
+        } as UserEntity;
+
+        await this.userService.create(user);
     }
 }

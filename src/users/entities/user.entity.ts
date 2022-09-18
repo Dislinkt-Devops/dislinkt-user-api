@@ -1,6 +1,6 @@
 import {
     Column, Entity, PrimaryGeneratedColumn,
-    BeforeInsert
+    BeforeInsert, BeforeUpdate
 } from "typeorm";
 import { hash } from 'bcrypt'
 
@@ -22,6 +22,7 @@ export class UserEntity {
     lastPasswordResetTime: Date | null;
 
     @BeforeInsert()
+    @BeforeUpdate()
     async hashPassword() {
         this.password = await hash(this.password, Number(process.env.HASH_SALT));
     }

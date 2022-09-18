@@ -1,11 +1,12 @@
 import {
   Body, Controller, Delete, Ip, Post, Req,
-  UnauthorizedException, NotFoundException
+  UnauthorizedException, NotFoundException, ConflictException
 } from '@nestjs/common';
 
 import { AuthService } from './auth.service';
 import { LoginDto } from './dtos/login.dto';
 import { RefreshTokenDto } from './dtos/refresh-token.dto';
+import { Registration } from './dtos/registration.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -41,5 +42,14 @@ export class AuthController {
   @Delete('logout')
   async logout(@Body() body: RefreshTokenDto) {
     return this.authService.logout(body.refreshToken);
+  }
+
+  @Post('register')
+  async register(@Body() body: Registration) {
+    try {
+      return await this.authService.register(body);
+    } catch(err) {
+      throw new ConflictException('There is already user with same email or username');
+    }
   }
 }
