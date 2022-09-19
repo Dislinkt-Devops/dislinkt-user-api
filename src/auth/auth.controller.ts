@@ -1,12 +1,15 @@
 import {
-  Body, Controller, Delete, Ip, Post, Req,
+  Body, Controller, Delete, Ip, Post, Put, Req, UseGuards,
   UnauthorizedException, NotFoundException, ConflictException
 } from '@nestjs/common';
 
 import { AuthService } from './auth.service';
 import { LoginDto } from './dtos/login.dto';
+import { PasswordChangeDto } from './dtos/password-change.dto';
 import { RefreshTokenDto } from './dtos/refresh-token.dto';
-import { Registration } from './dtos/registration.dto';
+import { RegistrationDto } from './dtos/registration.dto';
+import { UpdateFormDto } from './dtos/update-form.dto';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -45,10 +48,26 @@ export class AuthController {
   }
 
   @Post('register')
-  async register(@Body() body: Registration) {
+  async register(@Body() body: RegistrationDto) {
     try {
       return await this.authService.register(body);
-    } catch(err) {
+    } catch {
+      throw new ConflictException('There is already user with same email or username');
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('password-change')
+  async changePassword(@Req() req, @Body() body: PasswordChangeDto) {
+    return await this.authService.changePassword(body, req.user.userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Put('update-user')
+  async updateUser(@Req() req, @Body() body: UpdateFormDto) {
+    try {
+      return await this.authService.updateUser(body, req.user.userId);
+    } catch {
       throw new ConflictException('There is already user with same email or username');
     }
   }

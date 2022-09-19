@@ -1,18 +1,7 @@
-import {
-    IsNotEmpty, IsEmail, MinLength,
-    IsString, MaxLength, Matches
-} from 'class-validator'
+import { IsString, Matches, MinLength } from 'class-validator'
 import { Match } from '../../common';
 
-export class RegistrationDto {
-    @IsNotEmpty()
-    @IsString()
-    @MinLength(4)
-    @MaxLength(20)
-    username: string;
-
-    @IsEmail()
-    email: string;
+export class PasswordChangeDto {
 
     @IsString()
     @MinLength(4)
