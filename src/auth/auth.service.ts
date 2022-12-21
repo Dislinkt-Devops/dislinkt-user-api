@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { sign, verify } from 'jsonwebtoken'
 import { compare } from 'bcrypt'
 
@@ -51,12 +51,11 @@ export class AuthService {
             email
         } as RefreshTokenEntity;
 
-        this.repository.save(refreshToken);
-
+        const savedRefToken = await this.repository.save(refreshToken);
         const accessToken = { userId, username, email }; 
 
         return {
-            refreshToken: sign(refreshToken, process.env.JWT_REFRESH_SECRET),
+            refreshToken: sign(savedRefToken, process.env.JWT_REFRESH_SECRET),
             accessToken: sign(accessToken, process.env.JWT_SECRET, { expiresIn: '1h' })
         }
     }
@@ -119,8 +118,13 @@ export class AuthService {
 
     async changePassword(passwordChangeForm: PasswordChangeDto, userId: string): Promise<void> {
         const user = await this.userService.findOne(userId);
-        await user.updatePassword(passwordChangeForm.password);
-        await this.userService.save(user);
+        if (user) {
+            const assignedUser = Object.assign(new UserEntity(), user);
+            await assignedUser.updatePassword(passwordChangeForm.password);
+            await this.userService.save(assignedUser);
+        } else {
+            throw new UnauthorizedException('User no longer exist.');
+        }
     }
 
     async updateUser(updateForm: UpdateFormDto, userId: string): Promise<void> {

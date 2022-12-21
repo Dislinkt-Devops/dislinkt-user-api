@@ -1,6 +1,6 @@
 import {
     Column, Entity, PrimaryGeneratedColumn,
-    BeforeInsert, BeforeUpdate
+    BeforeInsert
 } from "typeorm";
 import { hash } from 'bcrypt'
 
