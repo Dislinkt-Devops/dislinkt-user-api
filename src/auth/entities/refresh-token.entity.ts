@@ -1,4 +1,3 @@
-import { sign } from 'jsonwebtoken'
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('refresh_tokens')

@@ -28,4 +28,9 @@ export class UsersService {
             where: { id }
         });
     }
+
+    save(newUser: UserEntity): Promise<UserEntity> {
+        const entity = Object.assign(new UserEntity(), newUser);
+        return this.repository.save(entity);
+    }
 }

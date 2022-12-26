@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { sign, verify } from 'jsonwebtoken'
 import { compare } from 'bcrypt'
 
@@ -8,6 +8,9 @@ import { LoginResponseDto } from './dtos/login-response.dto';
 import { RefreshTokenEntity } from './entities/refresh-token.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { RegistrationDto } from './dtos/registration.dto';
+import { PasswordChangeDto } from './dtos/password-change.dto';
+import { UpdateFormDto } from './dtos/update-form.dto';
 
 @Injectable()
 export class AuthService {
@@ -48,12 +51,11 @@ export class AuthService {
             email
         } as RefreshTokenEntity;
 
-        this.repository.save(refreshToken);
-
+        const savedRefToken = await this.repository.save(refreshToken);
         const accessToken = { userId, username, email }; 
 
         return {
-            refreshToken: sign(refreshToken, process.env.JWT_REFRESH_SECRET),
+            refreshToken: sign(savedRefToken, process.env.JWT_REFRESH_SECRET),
             accessToken: sign(accessToken, process.env.JWT_SECRET, { expiresIn: '1h' })
         }
     }
@@ -94,7 +96,7 @@ export class AuthService {
         return this.newRefreshAndAccessToken(user, userAgent, ipAddress)
     }
 
-    async logout(refreshStr): Promise<void> {
+    async logout(refreshStr: string): Promise<void> {
         const refreshToken = await this.retrieveRefreshToken(refreshStr);
 
         if (!refreshToken) {
@@ -102,5 +104,33 @@ export class AuthService {
         }
         // delete refreshtoken from db
         this.repository.delete(refreshToken.id);
+    }
+
+    async register(registrationForm: RegistrationDto): Promise<void> {
+        const user = {
+            username: registrationForm.username,
+            email: registrationForm.email,
+            password: registrationForm.password
+        } as UserEntity;
+
+        await this.userService.save(user);
+    }
+
+    async changePassword(passwordChangeForm: PasswordChangeDto, userId: string): Promise<void> {
+        const user = await this.userService.findOne(userId);
+        if (user) {
+            const assignedUser = Object.assign(new UserEntity(), user);
+            await assignedUser.updatePassword(passwordChangeForm.password);
+            await this.userService.save(assignedUser);
+        } else {
+            throw new UnauthorizedException('User no longer exist.');
+        }
+    }
+
+    async updateUser(updateForm: UpdateFormDto, userId: string): Promise<void> {
+        const user = await this.userService.findOne(userId);
+        user.email = updateForm.email;
+        user.username = updateForm.username;
+        await this.userService.save(user);
     }
 }
