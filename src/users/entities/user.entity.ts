@@ -26,5 +26,10 @@ export class UserEntity {
         this.password = await hash(this.password, Number(process.env.HASH_SALT));
     }
 
+    async updatePassword(newPassword: string) {
+        this.password = newPassword;
+        await this.hashPassword();
+    }
+
     // role: UserRoles;
 }
