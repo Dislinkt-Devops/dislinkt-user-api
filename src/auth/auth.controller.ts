@@ -50,7 +50,7 @@ export class AuthController {
   @Post('register')
   async register(@Body() body: RegistrationDto) {
     try {
-      return await this.authService.register(body);
+      await this.authService.register(body);
     } catch {
       throw new ConflictException('There is already user with same email or username');
     }
