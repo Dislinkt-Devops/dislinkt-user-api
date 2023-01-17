@@ -11,6 +11,7 @@ import { Repository } from 'typeorm';
 import { RegistrationDto } from './dtos/registration.dto';
 import { PasswordChangeDto } from './dtos/password-change.dto';
 import { UpdateFormDto } from './dtos/update-form.dto';
+import { UserRoles } from '../users/entities/user-roles.enum';
 
 @Injectable()
 export class AuthService {
@@ -42,7 +43,7 @@ export class AuthService {
         userAgent: string,
         ipAddress: string
     ): Promise<LoginResponseDto> {
-        const { id: userId, username, email } = user;
+        const { id: userId, username, email, role } = user;
         const refreshToken = {
             userAgent,
             ipAddress,
@@ -52,7 +53,7 @@ export class AuthService {
         } as RefreshTokenEntity;
 
         const savedRefToken = await this.repository.save(refreshToken);
-        const accessToken = { userId, username, email }; 
+        const accessToken = { userId, username, email, role: UserRoles[role] as string }; 
 
         return {
             refreshToken: sign(savedRefToken, process.env.JWT_REFRESH_SECRET),

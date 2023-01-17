@@ -1,11 +1,9 @@
-import { UnauthorizedException } from '@nestjs/common/exceptions';
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { LoginResponseDto } from './dtos/login-response.dto';
 import { LoginDto } from './dtos/login.dto';
-import { RefreshTokenEntity } from './entities/refresh-token.entity';
 
 const usersArray = [
   { id: '1', username: 'peter', email: 'peter', password: 'peter', lastPasswordResetTime: null },
