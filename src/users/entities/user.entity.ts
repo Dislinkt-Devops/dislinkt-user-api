@@ -25,7 +25,7 @@ export class UserEntity {
     @Column({ type: 'enum', enum: UserRoles, default: UserRoles.REGISTERED_USER })
     role: UserRoles;
 
-    @Column({ nullable: false, default: true })
+    @Column({ nullable: false, default: false })
     isActive: boolean;
 
     @BeforeInsert()

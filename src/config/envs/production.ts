@@ -10,5 +10,6 @@ export const config = {
     database: process.env.DB_NAME,
 
     autoLoadEntities: true,
-  }
+  },
+  apiKey: process.env.API_KEY
 };
