@@ -2,6 +2,8 @@ import {
   Body, Controller, Delete, Ip, Post, Put, Req, UseGuards,
   UnauthorizedException, NotFoundException, ConflictException, Query
 } from '@nestjs/common';
+import { Get } from '@nestjs/common/decorators';
+import { ParseUUIDPipe } from '@nestjs/common/pipes';
 import { AuthGuard } from '@nestjs/passport';
 
 import { AuthService } from './auth.service';
@@ -44,8 +46,8 @@ export class AuthController {
   }
 
   @Delete('logout')
-  async logout(@Body() body: RefreshTokenDto) {
-    return this.authService.logout(body.refreshToken);
+  logout(@Body() body: RefreshTokenDto) {
+    this.authService.logout(body.refreshToken);
   }
 
   @Post('register')
@@ -59,8 +61,8 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Post('password-change')
-  async changePassword(@Req() req, @Body() body: PasswordChangeDto) {
-    return await this.authService.changePassword(body, req.user.userId);
+  changePassword(@Req() req, @Body() body: PasswordChangeDto) {
+    this.authService.changePassword(body, req.user.userId);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -75,7 +77,13 @@ export class AuthController {
 
   @UseGuards(AuthGuard('api-key'))
   @Put('activate')
-  async activateUser(@Query() query: { id: string}) {
-    await this.authService.activateUser(query.id);
+  activateUser(@Query('id', ParseUUIDPipe) id: string) {
+    this.authService.activateUser(id);
+  }
+
+  @UseGuards(AuthGuard('api-key'))
+  @Get('search')
+  searchUsers(@Query('keyword') keyword: string) {
+    return this.authService.searchUsers(keyword);
   }
 }

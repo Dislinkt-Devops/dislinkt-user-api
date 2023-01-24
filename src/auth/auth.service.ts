@@ -73,13 +73,16 @@ export class AuthService {
         }
 
         const accessToken = {
-            userId: refreshToken.userId,
-            username: refreshToken.username,
-            email: refreshToken.email
+            userId: user.id,
+            username: user.username,
+            email: user.email,
+            role: UserRoles[user.role] as string,
+            isActive: user.isActive
         };
 
         return {
-            accessToken: sign(accessToken, process.env.JWT_SECRET, { expiresIn: '1h' })
+            accessToken: sign(accessToken, process.env.JWT_SECRET, { expiresIn: '1h' }),
+            refreshToken: refreshStr
         };
     }
 
@@ -143,5 +146,9 @@ export class AuthService {
 
         user.isActive = true;
         await this.userService.save(user);
+    }
+
+    async searchUsers(keyword: string): Promise<string[]> {
+        return (await this.userService.findByUsernameLike(keyword)).map(x => x.id); 
     }
 }
