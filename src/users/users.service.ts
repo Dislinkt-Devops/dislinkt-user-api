@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 
 import { UserEntity } from './entities/user.entity';
 
@@ -32,5 +32,11 @@ export class UsersService {
     save(newUser: UserEntity): Promise<UserEntity> {
         const entity = Object.assign(new UserEntity(), newUser);
         return this.repository.save(entity);
+    }
+
+    findByUsernameLike(keyword: string): Promise<UserEntity[]> {
+        return this.repository.find({
+            where: { username: ILike(`%${keyword}%`) }
+        });
     }
 }
