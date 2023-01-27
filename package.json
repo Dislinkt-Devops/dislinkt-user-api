@@ -1,6 +1,6 @@
 {
   "name": "dislinkt-user-api",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "",
   "author": "",
   "private": true,
@@ -30,6 +30,7 @@
     "@nestjs/platform-express": "^9.0.0",
     "@nestjs/typeorm": "^9.0.1",
     "@types/reflect-metadata": "^0.1.0",
+    "@willsoto/nestjs-prometheus": "^5.1.0",
     "bcrypt": "^5.0.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
@@ -38,6 +39,7 @@
     "passport-jwt": "^4.0.0",
     "pg": "^8.8.0",
     "postgres": "^3.2.4",
+    "prom-client": "^14.1.1",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
